@@ -6,6 +6,7 @@ This module provides a decorator to log SQL queries before executing a function.
 """
 
 import functools
+from datetime import datetime
 
 
 
@@ -19,7 +20,8 @@ def log_queries():
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if args:
-                print(f"Executing SQL query: {args[0]}")
+                now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                print(f"[{now}] Executing SQL query: {args[0]}")
             return func(*args, **kwargs)
 
         return wrapper
