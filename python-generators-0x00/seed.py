@@ -9,8 +9,8 @@
 from mysql.connector import connect, Error
 
 DB_HOST = 'localhost'
-DB_USER = 'root'
-DB_PASSWORD = 'password'
+DB_USER = 'kiki'
+DB_PASSWORD = 'your_password'
 DB_NAME = 'ALX_prodev'
 
 def connect_db():
