@@ -20,7 +20,7 @@ def log_queries():
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if args:
-                now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 print(f"[{now}] Executing SQL query: {args[0]}")
             return func(*args, **kwargs)
 
