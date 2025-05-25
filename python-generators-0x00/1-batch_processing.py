@@ -27,6 +27,7 @@ def stream_users_in_batches(batch_size):
         print(e)
     finally:
         connection.close()
+    return
 
 def batch_processing(batch_size):
     """
@@ -42,6 +43,7 @@ def batch_processing(batch_size):
         for user in batch:
             if user.get("age", 0) > 25:
                 yield user
+    return
 
 if __name__ == "__main__":
     # Example usage: print users over 25 in batches of 10
