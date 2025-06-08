@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
+from .permissions import IsParticipantOfConversation
 
 class ConversationViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -13,6 +14,7 @@ class ConversationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ConversationSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['participants__user_id']
+    permission_classes = [IsParticipantOfConversation]
 
 class MessageViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -23,3 +25,4 @@ class MessageViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = MessageSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['conversation__conversation_id', 'sender__user_id', 'recipient__user_id']
+    permission_classes = [IsParticipantOfConversation]
