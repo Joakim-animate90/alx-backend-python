@@ -14,6 +14,21 @@ class User(AbstractUser):
     password = models.CharField(max_length=128)
     phone_number = models.CharField(max_length=15, blank=True,null=True)
     is_active = models.BooleanField(default=True)
+
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='chats_user_groups',
+        blank=True,
+        help_text='The groups this user belongs to.',
+        verbose_name='groups'
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='chats_user_permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions'
+    )
     
     
     # Add any extra fields here that are not in AbstractUser
