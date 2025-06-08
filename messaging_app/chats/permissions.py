@@ -1,4 +1,4 @@
-from rest_framework import permissions
+from rest_framework import permissions 
 
 class IsParticipantOfConversation(permissions.BasePermission):
     """
@@ -16,8 +16,14 @@ class IsParticipantOfConversation(permissions.BasePermission):
         if view.basename == 'conversation':
             return True
 
-        # For MessageViewSet, defer to has_object_permission for detail views
-        return True
+        # For MessageViewSet, allow only for safe methods, otherwise defer to has_object_permission
+        if view.basename == 'message':
+            if request.method in permissions.SAFE_METHODS:
+                return True
+            # For PUT, PATCH, DELETE, POST, defer to object-level permission
+            return True
+
+        return False
 
     def has_object_permission(self, request, view, obj):
         # Only allow participants of the conversation to access the message/conversation
@@ -28,7 +34,11 @@ class IsParticipantOfConversation(permissions.BasePermission):
             return obj.participants.filter(user=user).exists()
 
         # For MessageViewSet, check if user is a participant in the related conversation
-        if hasattr(obj, 'conversation'):
-            return obj.conversation.participants.filter(user=user).exists()
-
+        if view.basename == 'message':
+            if hasattr(obj, 'conversation'):
+                is_participant = obj.conversation.participants.filter(user=user).exists()
+                if request.method in ['PUT', 'PATCH', 'DELETE']:
+                    return is_participant
+                # For safe methods (GET, HEAD, OPTIONS), allow if participant
+                return is_participant
         return False
