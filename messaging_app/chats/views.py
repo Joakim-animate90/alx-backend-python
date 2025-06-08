@@ -9,7 +9,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     """
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 class MessageViewSet(viewsets.ModelViewSet):
     """
@@ -17,4 +17,4 @@ class MessageViewSet(viewsets.ModelViewSet):
     """
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
