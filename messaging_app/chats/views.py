@@ -7,10 +7,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
 from .permissions import IsParticipantOfConversation
+from .pagination import MessagePagination
+from .filters import MessageFilter
 
-class ConversationViewSet(viewsets.ReadOnlyModelViewSet):
+class ConversationViewSet(viewsets.ModelViewSet):
     """
-    ViewSet for listing and retrieving conversations.
+    ViewSet for CRUD operations on conversations.
     Supports filtering by participant user_id.
     """
     queryset = Conversation.objects.all().order_by('-created_at')
@@ -19,14 +21,15 @@ class ConversationViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_fields = ['participants__user_id']
     permission_classes = [IsAuthenticated, IsParticipantOfConversation]
 
-class MessageViewSet(viewsets.ReadOnlyModelViewSet):
+class MessageViewSet(viewsets.ModelViewSet):
     """
-    ViewSet for listing and retrieving messages.
-    Supports filtering by conversation and sender.
+    ViewSet for CRUD operations on messages.
+    Supports filtering by conversation, sender, recipient, and sent_at range.
     """
     serializer_class = MessageSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['conversation__conversation_id', 'sender__user_id', 'recipient__user_id']
+    filterset_class = MessageFilter
+    pagination_class = MessagePagination
     permission_classes = [IsAuthenticated, IsParticipantOfConversation]
 
     def get_queryset(self):
