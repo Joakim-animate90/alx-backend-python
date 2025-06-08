@@ -3,6 +3,8 @@ from .models import User, Conversation, Message
 
 class UserSerializer(serializers.ModelSerializer):
     """
+    nickname = serializers.CharField(required=False, allow_blank=True, max_length=30)
+    full_name = serializers.SerializerMethodField()
     Serializer for the User model.
 
     Serializes user_id, username, email, first_name, last_name, phone_number, and is_active fields.
@@ -56,6 +58,9 @@ class UserSerializer(serializers.ModelSerializer):
         if value and len(value) > 50:
             raise serializers.ValidationError("Last name must be 50 characters or fewer.")
         return value
+
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}".strip()
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
