@@ -87,3 +87,5 @@ Not Found: /
 2025-06-30 15:41:03.214543 - User: kimongi - Path: /admin/auth/user/5/change/
 2025-06-30 15:41:03.425774 - User: kimongi - Path: /admin/jsi18n/
 2025-06-30 15:46:06.214513 - User: AnonymousUser - Path: /api/token/
+/home/kimongi/code/alx/alx-backend-python/Django-Middleware-0x03/chats/middleware.py changed, reloading.
+/home/kimongi/code/alx/alx-backend-python/Django-Middleware-0x03/messaging_app/settings.py changed, reloading.
