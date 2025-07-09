@@ -1,6 +1,15 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+class UnreadMessagesManager(models.Manager):
+    def for_user(self, user):
+        return self.filter(
+            receiver=user,
+            read=False
+        ).select_related('sender').only(
+            'id', 'sender__username', 'content', 'timestamp'
+        )
+
 User = get_user_model()
 
 
@@ -42,6 +51,10 @@ class Message(models.Model):
         blank=True,
         related_name='replies'
     )
+    read = models.BooleanField(default=False)
+    
+    objects = models.Manager()
+    unread = UnreadMessagesManager()
 
     def __str__(self):
         return f"Message from {self.sender} to {self.receiver}"
