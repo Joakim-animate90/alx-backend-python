@@ -11,12 +11,15 @@ from .models import Message, MessageHistory
 import json
 from django.db.models import Prefetch
 
-def get_threaded_messages(message_id):
+def get_threaded_messages(message_id, user):
     """Recursively fetch a message and all its replies"""
-    message = Message.objects.filter(pk=message_id).prefetch_related(
+    message = Message.objects.filter(
+        Q(sender=user) | Q(receiver=user),
+        pk=message_id
+    ).select_related('sender', 'receiver').prefetch_related(
         Prefetch('replies', 
-            queryset=Message.objects.all().prefetch_related(
-                Prefetch('replies', queryset=Message.objects.all())
+            queryset=Message.objects.select_related('sender', 'receiver').prefetch_related(
+                Prefetch('replies', queryset=Message.objects.select_related('sender', 'receiver'))
             )
         )
     ).first()
@@ -25,7 +28,7 @@ def get_threaded_messages(message_id):
 @login_required
 def get_message_thread(request, message_id):
     """API endpoint to get a message and its full reply thread"""
-    message = get_threaded_messages(message_id)
+    message = get_threaded_messages(message_id, request.user)
     if not message:
         return JsonResponse({'error': 'Message not found'}, status=404)
     
