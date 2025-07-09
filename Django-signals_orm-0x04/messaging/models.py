@@ -15,6 +15,7 @@ class Message(models.Model):
         edited: Whether the message was edited
         edited_at: When the message was last edited
         edited_by: User who made the last edit (null if not edited)
+        parent_message: Original message this is replying to (null if top-level)
     """
 
     sender = models.ForeignKey(
@@ -33,6 +34,13 @@ class Message(models.Model):
         null=True,
         blank=True,
         related_name="message_edits",
+    )
+    parent_message = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies'
     )
 
     def __str__(self):
