@@ -59,18 +59,41 @@ def get_message_thread(request, message_id):
     
     return JsonResponse(build_thread(message))
 
+@cache_page(60)
 @login_required
-def get_unread_messages(request):
-    """Get all unread messages for current user"""
-    messages = Message.unread.for_user(request.user)
-    data = [{
-        'id': msg.id,
-        'sender': msg.sender.username,
-        'content': msg.content,
-        'timestamp': msg.timestamp.isoformat()
-    } for msg in messages]
-    return JsonResponse({'messages': data})
-
+def unread_messages(request):
+    """
+    Get unread messages with optimized queries
+    """
+    messages = Message.unread.unread_for_user(request.user).only(
+        'id', 
+        'content',
+        'timestamp',
+        'edited',
+        'last_edited_at',
+        'sender__username',
+        'last_edited_by__username'
+    ).select_related(
+        'sender',
+        'last_edited_by'
+    ).prefetch_related(
+        Prefetch('replies', queryset=Message.objects.select_related(
+            'sender', 'receiver'
+        ))
+    )
+    
+    return JsonResponse({
+        'unread_messages': [{
+            'id': msg.id,
+            'sender': msg.sender.username,
+            'content': msg.content,
+            'timestamp': msg.timestamp.isoformat(),
+            'edited': msg.edited,
+            'last_edited_by': msg.last_edited_by.username if msg.last_edited_by else None,
+            'last_edited_at': msg.last_edited_at.isoformat() if msg.last_edited_at else None,
+            'reply_count': msg.replies.count()
+        } for msg in messages]
+    })
 @login_required
 @require_http_methods(["DELETE"])
 def delete_user(request):
