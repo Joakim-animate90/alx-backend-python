@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: messaging-app
-        image: joakimanimate90/messaging_app:1.0
+        image: joakimanimate90/messaging_app:2.0
         ports:
         - containerPort: 8000
 
@@ -24,10 +24,11 @@ kind: Service
 metadata:
   name: messaging-service
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: messaging-app
   ports:
   - protocol: TCP
     port: 8000
     targetPort: 8000
+    nodePort: 30008 

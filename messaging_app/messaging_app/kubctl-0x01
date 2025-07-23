@@ -1,0 +1,42 @@
+#!/bin/bash
+
+KUBECTL="minikube kubectl --"
+
+# Check if wrk is installed
+if ! command -v wrk &> /dev/null; then
+    echo "wrk is not installed. Install with: sudo apt install wrk"
+    exit 1
+fi
+
+# Enable metrics-server if not enabled
+if ! minikube addons list | grep "metrics-server" | grep -q "enabled"; then
+    echo "Enabling metrics-server..."
+    minikube addons enable metrics-server
+fi
+
+# Scale the deployment
+echo "Scaling messaging-app deployment to 3 replicas..."
+$KUBECTL scale deployment messaging-app --replicas=3
+
+# Verify pods
+echo -e "\nVerifying pods..."
+$KUBECTL get pods -l app=messaging-app
+
+# Get service URL
+SERVICE_URL=$(minikube service messaging-service --url | head -n 1)
+if [[ -z "$SERVICE_URL" ]]; then
+    echo "Falling back to NodePort..."
+    NODE_PORT=$($KUBECTL get svc messaging-service -o jsonpath='{.spec.ports[0].nodePort}')
+    SERVICE_URL="http://$(minikube ip):$NODE_PORT"
+fi
+echo -e "\nService URL: $SERVICE_URL"
+
+# Load testing
+echo -e "\nRunning wrk benchmark..."
+wrk -t4 -c100 -d30s "$SERVICE_URL/health/"
+
+# Resource usage
+echo -e "\nPod Resource Usage:"
+$KUBECTL top pods -l app=messaging-app || echo "Metrics server still starting."
+
+echo -e "\nScript completed."
