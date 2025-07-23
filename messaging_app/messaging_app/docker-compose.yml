@@ -1,8 +1,9 @@
 services:
   web:
-    build: ..
-    command:
-      - "python3 manage.py runserver"
+    build:
+      context: ..
+      dockerfile: messaging_app/Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
     env_file:
@@ -12,7 +13,9 @@ services:
     networks:
       - messaging_net
     volumes:
-      - messaging_vol:/app
+      - ../messaging_app:/app/messaging_app
+      - ../chats:/app/chats
+      - ../manage.py:/app/manage.py
   db:
     image: "mysql:8.0"
     volumes:
@@ -25,6 +28,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_DB: ${MYSQL_DB}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     networks:
       - messaging_net
 
